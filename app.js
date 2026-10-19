@@ -91,7 +91,15 @@
       const labelRight=521+ctx.measureText(label).actualBoundingBoxRight;
       starLeft=labelRight+(starLeft-labelRight)/2;
     }
-    text(star.repeat(starCount),starLeft,y-1,24,'number',500,Math.max(20,left-starLeft-6));ctx.restore();
+    const stars=star.repeat(starCount), starMaxWidth=Math.max(20,left-starLeft-6);
+    if(star==='☆'){
+      setFont(size,'money',700);const digits=ctx.measureText(String(amount));
+      const centerY=y+(digits.actualBoundingBoxDescent-digits.actualBoundingBoxAscent)/2;
+      setFont(24,'number',500);const m=ctx.measureText(stars);
+      const width=Math.min(starMaxWidth,m.actualBoundingBoxLeft+m.actualBoundingBoxRight);
+      centeredText(stars,starLeft+width/2,centerY,24,'number',500,width);
+    }else text(stars,starLeft,y-1,24,'number',500,starMaxWidth);
+    ctx.restore();
   }
   // Fixed decoration: paint only dark modules so every light area stays transparent.
   function decorativeCode(x,y,seed){
@@ -162,11 +170,14 @@
     }
     rect(404,horseTop,52,47,1.7);centeredText(d.horse,430,horseTop+23.5,48,'number',700,44);
     horseName(d.horseName,467,horseTop-.85,48.7,305);
+    const subtotalSize=d.type==='cheer'?51:58;
+    setFont(subtotalSize,'money',700);
+    const subtotalY=horseTop+47.85+4+ctx.measureText(String(d.amount)).actualBoundingBoxAscent;
     if(d.type==='cheer'){
-      money(d.amount,774,274,51,282);
-      money(d.amount,774,331,36,188,3,'☆','単勝');
-      money(d.amount,774,376,36,188,3,'☆','複勝');
-    }else money(d.amount,774,281,58,314);
+      money(d.amount,774,subtotalY,subtotalSize,282);
+      money(d.amount,774,386,36,188,3,'☆','単勝');
+      money(d.amount,774,420,36,188,3,'☆','複勝');
+    }else money(d.amount,774,subtotalY,subtotalSize,314);
     const total=d.amount*(d.type==='cheer'?2:1), count=total/10;
     text('合計',291,452,20,'sans',500);text('★★★★',337,451,19,'number',500,70);
     numericText(number(count),410,452,30);text('枚',507,451,18,'sans',500);
