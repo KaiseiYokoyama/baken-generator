@@ -46,6 +46,13 @@
     const s=String(value), width=ctx.measureText(s).width;
     ctx.translate(x,y);ctx.scale(Math.min(1,maxWidth/Math.max(1,width)),1);ctx.fillText(s,0,0);ctx.restore();
   }
+  function rightBottomText(value,right,bottom,size=20,family='number',weight=500,maxWidth=580){
+    ctx.save();setFont(size,family,weight);ctx.fillStyle='#101512';ctx.textBaseline='alphabetic';
+    const s=String(value),m=ctx.measureText(s);
+    const scaleX=Math.min(1,maxWidth/Math.max(1,m.actualBoundingBoxLeft+m.actualBoundingBoxRight));
+    ctx.translate(right,bottom);ctx.scale(scaleX,1);
+    ctx.fillText(s,-m.actualBoundingBoxRight,-m.actualBoundingBoxDescent);ctx.restore();
+  }
   // Center on the painted glyph bounds, including asymmetric digits such as 1.
   function centeredText(value,cx,cy,size=20,family='sans',weight=500,maxWidth=Infinity,color='#101512',outline=false) {
     ctx.save();setFont(size,family,weight);ctx.textBaseline='alphabetic';ctx.fillStyle=color;
@@ -180,9 +187,9 @@
     }else money(d.amount,774,subtotalY,subtotalSize,314);
     const total=d.amount*(d.type==='cheer'?2:1), count=total/10;
     text('合計',291,452,20,'sans',500);text('★★★★',337,451,19,'number',500,70);
-    numericText(number(count),410,452,30);text('枚',507,451,18,'sans',500);
+    numericText(number(count),507-7-numericWidth(number(count)),452,30);text('枚',507,451,20,'sans',500);
     money(total,774,452,32,242,4,'★');
-    text(d.serial,286,479,18,'number',500,489);
+    rightBottomText(d.serial,774,480);
     text('X E N',24,480,13,'number',500,200);
   }
   form.addEventListener('submit',e=>e.preventDefault());
