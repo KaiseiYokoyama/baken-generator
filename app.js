@@ -6,6 +6,7 @@
   $('venue').replaceChildren(...venues.map(v => new Option(v,v,v==='東京',v==='東京')));
   const japanDate = new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   $('date').value = japanDate;
+  $('purchaseDate').value = japanDate;
   const fonts = {sans:'"Noto Sans JP"', serif:'"Noto Serif JP"', number:'"Jost"', money:'"Roboto Condensed"', cheer:'"Dela Gothic One"'};
   let ready = false, valid = false, lastValid = null, background = null, imageRequest = 0, imageLoading = false, imageProblem = false;
   const imageDefaults = {x:50,y:50,zoom:100,fade:35};
@@ -19,12 +20,14 @@
       else if(key==='amount' && value%100) errors[key] = '金額は100円単位で入力してください。';
       data[key] = value;
     }
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(data.date || '') || !$('date').validity.valid) errors.date = '有効な開催日を入力してください。';
+    for(const [key,title] of [['date','開催日'],['purchaseDate','購入日']]){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(data[key] || '') || !$(key).validity.valid) errors[key] = `有効な${title}を入力してください。`;
+    }
     for(const [key,title] of [['horseName','馬名'],['issuePlace','発券場所'],['serial','管理番号']]) {
       data[key] = data[key].trim();
       if(!data[key]) errors[key] = `${title}を入力してください。`;
     }
-    for(const key of ['race','horse','meeting','day','amount','date','horseName','issuePlace','serial']) {
+    for(const key of ['race','horse','meeting','day','amount','date','purchaseDate','horseName','issuePlace','serial']) {
       $(key+'-error').textContent = errors[key] || '';
       $(key).setAttribute('aria-invalid',Boolean(errors[key]));
       $(key).setAttribute('aria-describedby',key+'-error');
@@ -160,12 +163,17 @@
   function drawTicket(d){
     ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,800,490);drawBackground();
     const year=d.date.split('-')[0];
-    text(`${year}年${d.meeting}回${d.day}日`,24,48,23,'sans',500,250);
+    text(`${year}年${d.meeting}回${d.day}日`,24,48,23,'sans',700,250);
     text(`${d.venue}`,24,91,33,'sans',700,230);
-    blackBox(24,105,100,53);centeredText(d.race,74,131.5,58,'number',700,88,'#fff');text('レース',135,147,26,'sans',500,136);
+    blackBox(24,105,100,53);centeredText(d.race,74,131.5,58,'sans',700,88,'#fff');text('レース',135,147,26,'sans',700,136);
     decorativeCode(25,179,2546789);decorativeCode(155,179,983715);
-    if(d.raceName)text(d.raceName,24,326,23,'sans',500,244);
-    text(`${d.issueType} ${d.issuePlace}`,24,367,21,'sans',500,244);
+    const title=d.raceName.trim(), breakAt=title.indexOf('回');
+    const titleLines=breakAt>=0?[title.slice(0,breakAt+1),title.slice(breakAt+1).trim()].filter(Boolean):title?[title]:[];
+    titleLines.forEach((part,index)=>text(part,24,326+index*29,23,'sans',700,244));
+    const issueY=titleLines.length>1?396:367;
+    text(`${d.issueType} ${d.issuePlace}`,24,issueY,21,'sans',700,244);
+    const [,purchaseMonth,purchaseDay]=d.purchaseDate.split('-');
+    text(`${Number(purchaseMonth)}月${Number(purchaseDay)}日`,24,issueY+34,21,'sans',700,244);
     drawBand(d.type);
     const horseTop=d.type==='cheer'?138:164;
     if(d.type==='cheer'){
