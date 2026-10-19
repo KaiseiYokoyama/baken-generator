@@ -59,11 +59,22 @@
   function line(x1,y1,x2,y2,width=1.8) {ctx.beginPath();ctx.lineWidth=width;ctx.strokeStyle='#111712';ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
   function rect(x,y,w,h,width=1.8){ctx.strokeStyle='#101512';ctx.lineWidth=width;ctx.strokeRect(x,y,w,h);}
   function blackBox(x,y,w,h){ctx.fillStyle='#101512';ctx.fillRect(x,y,w,h);}
-  function money(amount,right,y,size=45,maxWidth=285){
+  function horseName(value,x,top,height,maxWidth){
+    ctx.save();setFont(48,'sans',700);ctx.textBaseline='alphabetic';ctx.fillStyle='#101512';
+    const m=ctx.measureText(value), glyphHeight=m.actualBoundingBoxAscent+m.actualBoundingBoxDescent;
+    const scaleY=height/Math.max(1,glyphHeight);
+    const scaleX=Math.min(scaleY*.8,maxWidth/Math.max(1,m.actualBoundingBoxLeft+m.actualBoundingBoxRight));
+    ctx.translate(x,top+height/2);ctx.scale(scaleX,scaleY);
+    ctx.fillText(value,m.actualBoundingBoxLeft,(m.actualBoundingBoxAscent-m.actualBoundingBoxDescent)/2);
+    ctx.restore();
+  }
+  function money(amount,right,y,size=45,maxWidth=285,starCount=3){
     ctx.save();setFont(size,'money',700);const s=number(amount), yen=20, gap=7;
-    const width=Math.min(ctx.measureText(s).width,maxWidth-yen-40), left=right-yen-gap-width;
+    const reserve=starCount===4?100:40;
+    const width=Math.min(ctx.measureText(s).width,maxWidth-yen-reserve), left=right-yen-gap-width;
     text(s,left,y,size,'money',700,width);text('円',right-yen,y-1,20,'sans',500);
-    text('★★★',Math.max(right-maxWidth,left-85),y-1,24,'number',500,Math.max(20,left-Math.max(right-maxWidth,left-85)-6));ctx.restore();
+    const starLeft=Math.max(right-maxWidth,left-(starCount===4?98:85));
+    text('★'.repeat(starCount),starLeft,y-1,24,'number',500,Math.max(20,left-starLeft-6));ctx.restore();
   }
   // Fixed decoration: paint only dark modules so every light area stays transparent.
   function decorativeCode(x,y,seed){
@@ -133,14 +144,14 @@
       rect(397,34,376,67,1.6);const chars=[...'がんばれ！'];chars.forEach((s,i)=>centeredText(s,409+(i+.5)*70,66,43,'cheer',400,65));
     }
     rect(404,horseTop,52,47,1.7);centeredText(d.horse,430,horseTop+23.5,48,'number',700,44);
-    text(d.horseName,467,horseTop+38,31,'sans',700,305);
+    horseName(d.horseName,467,horseTop-.85,48.7,305);
     if(d.type==='cheer'){
       money(d.amount,774,274,51,282);
       text('単勝',521,329,23,'sans',500,61);money(d.amount,774,331,36,188);
       text('複勝',521,374,23,'sans',500,61);money(d.amount,774,376,36,188);
     }else money(d.amount,774,281,58,314);
     text(`合計`,411,424,22,'sans',500);text(d.type==='cheer'?'2':'1',470,426,34,'money',700);text('枚',490,424,22,'sans',500);
-    money(d.amount*(d.type==='cheer'?2:1),774,427,43,255);
+    money(d.amount*(d.type==='cheer'?2:1),774,427,43,255,4);
     text(d.serial,286,464,21,'number',500,489);
     text('X E N',24,480,13,'number',500,200);
   }
