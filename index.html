@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' blob: data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'"><meta name="theme-color" content="#176948"><title>オリジナル馬券ジェネレーター</title><link rel="icon" href="./favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css"><script src="./app.js" defer></script></head>
+<body>
+<header class="header"><div class="brand"><span class="brand-icon">▥</span><h1>オリジナル馬券ジェネレーター</h1></div><span class="header-note">DESKTOP EDITOR</span></header>
+<main class="workspace">
+<section class="preview-panel" aria-label="馬券プレビュー">
+<div class="section-top"><h2>プレビュー</h2><span class="live"><i></i> 入力に合わせて更新</span></div>
+<div class="preview-stage"><canvas id="ticket" width="1600" height="980" aria-label="作成中の馬券"></canvas></div>
+<div class="preview-bottom"><span>PNG · 1600 × 980 px</span><span id="preview-status" role="status">フォントを読み込んでいます…</span></div>
+<button id="download" class="primary" disabled><span>↓</span> PNGで保存</button>
+<p class="local-note">画像と入力内容は、このブラウザ内で処理されます。</p>
+<div class="tips"><span class="tip-icon">✦</span><div><strong>自分だけの一枚に</strong><p>背景画像を選ぶと、位置や大きさ、薄さを調整できます。背景なしでも保存できます。</p></div></div>
+</section>
+<aside class="editor"><form id="editor" novalidate>
+<section class="form-section"><div class="section-heading"><span>01</span><h2>馬券の内容</h2></div>
+<fieldset class="type-field"><legend>券種</legend><div class="type-options"><label><input type="radio" name="type" value="win" checked><span>単勝<small>WIN</small></span></label><label><input type="radio" name="type" value="place"><span>複勝<small>PLACE / SHOW</small></span></label><label><input type="radio" name="type" value="cheer"><span>応援<small>単勝 ＋ 複勝</small></span></label></div></fieldset>
+<div class="grid"><div class="field"><label for="date">開催日</label><input id="date" name="date" type="date" required><small class="error" id="date-error"></small></div><div class="field"><label for="venue">競馬場</label><select id="venue" name="venue"></select></div>
+<div class="field"><label for="race">レース番号 <span>1–12</span></label><div class="unit-input"><input id="race" name="race" type="number" min="1" max="12" value="11" required><span>R</span></div><small class="error" id="race-error"></small></div><div class="field"><label for="horse">馬番 <span>1–18</span></label><input id="horse" name="horse" type="number" min="1" max="18" value="7" required><small class="error" id="horse-error"></small></div>
+<div class="field full"><label for="horseName">馬名</label><input id="horseName" name="horseName" value="オリジナルホース" maxlength="80" required><small class="error" id="horseName-error"></small></div><div class="field full"><label for="amount">金額 <span id="amount-label">100円単位</span></label><div class="unit-input"><input id="amount" name="amount" type="number" min="100" max="999900" step="100" value="100" required><span>円</span></div><small class="error" id="amount-error"></small><div class="total"><span id="amount-note">合計金額</span><strong id="total">100<span> 円</span></strong></div></div></div>
+</section>
+<section class="form-section"><div class="section-heading"><span>02</span><h2>背景</h2><span class="optional">任意</span></div>
+<label class="upload" id="upload-zone" for="background"><span class="upload-icon">＋</span><strong id="file-label">画像を選択</strong><small>JPEG / PNG / WebP · 20MBまで</small><input id="background" type="file" accept="image/jpeg,image/png,image/webp"></label><p class="error" id="background-error" role="alert"></p>
+<button type="button" id="cancel-background" hidden>画像選択を取り消す</button>
+<div id="image-controls" hidden><div class="slider"><label for="image-x">左右位置</label><output id="image-x-value">50%</output><input id="image-x" type="range" min="0" max="100" value="50"></div><div class="slider"><label for="image-y">上下位置</label><output id="image-y-value">50%</output><input id="image-y" type="range" min="0" max="100" value="50"></div><div class="slider"><label for="image-zoom">拡大率</label><output id="image-zoom-value">100%</output><input id="image-zoom" type="range" min="100" max="300" value="100"></div><div class="slider"><label for="image-fade">薄さ</label><output id="image-fade-value">35%</output><input id="image-fade" type="range" min="0" max="100" value="35"></div><div class="image-actions"><button type="button" id="reset-image">配置をリセット</button><button type="button" id="remove-image">画像を削除</button></div></div>
+</section>
+<section class="form-section details-section"><details><summary>詳細設定 <span>開催情報・発券情報</span></summary><div class="grid details-grid"><div class="field"><label for="meeting">開催回</label><input name="meeting" id="meeting" type="number" min="1" max="99" value="4"><small class="error" id="meeting-error"></small></div><div class="field"><label for="day">開催日目</label><input name="day" id="day" type="number" min="1" max="99" value="1"><small class="error" id="day-error"></small></div><div class="field full"><label for="raceName">レース名</label><input name="raceName" id="raceName" maxlength="80" placeholder="例：第87回 菊花賞（GⅠ）"></div><div class="field"><label for="issuePlace">発券場所</label><input name="issuePlace" id="issuePlace" value="東京" maxlength="24" required><small class="error" id="issuePlace-error"></small></div><div class="field"><label for="issueTime">発券時刻</label><input name="issueTime" id="issueTime" type="time" value="10:00" required><small class="error" id="issueTime-error"></small></div><div class="field full"><label for="serial">管理番号</label><input name="serial" id="serial" value="0254 6789 0012 3456 7890 1234" maxlength="60" required><small class="error" id="serial-error"></small></div></div></details></section>
+</form></aside>
+</main><footer><span>オリジナル馬券ジェネレーター</span><a href="./fonts/LICENSES.html" target="_blank" rel="noopener">フォント・ライセンス ↗</a></footer>
+</body></html>
