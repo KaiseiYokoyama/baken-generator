@@ -165,12 +165,19 @@
     const year=d.date.split('-')[0];
     text(`${year}年${d.meeting}回${d.day}日`,24,48,23,'sans',700,250);
     text(`${d.venue}`,24,91,33,'sans',700,230);
-    blackBox(24,105,100,53);centeredText(d.race,74,131.5,58,'sans',700,88,'#fff');text('レース',135,147,26,'sans',700,136);
+    blackBox(24,105,100,53);centeredText(d.race,74,131.5,58,'number',700,88,'#fff');text('レース',135,147,26,'sans',700,136);
     decorativeCode(25,179,2546789);decorativeCode(155,179,983715);
-    const title=d.raceName.trim(), breakAt=title.indexOf('回');
-    const titleLines=breakAt>=0?[title.slice(0,breakAt+1),title.slice(breakAt+1).trim()].filter(Boolean):title?[title]:[];
-    titleLines.forEach((part,index)=>text(part,24,326+index*29,23,'sans',700,244));
-    const issueY=titleLines.length>1?396:367;
+    const title=d.raceName.trim();
+    const gradePattern=/[（(]\s*(?:[GＧ]|Jpn)\s*(?:[123１２３]|[ⅠⅡⅢ]|I{1,3})\s*[）)]/i;
+    const grade=title.match(gradePattern)?.[0] || '';
+    const plainTitle=title.includes('回')?title.replace(gradePattern,'').trim():title;
+    const breakAt=plainTitle.indexOf('回');
+    const titleLines=breakAt>=0?[
+      plainTitle.slice(0,breakAt+1)+(grade?' '+grade:''),
+      plainTitle.slice(breakAt+1).trim()
+    ].filter(Boolean):title?[title]:[];
+    titleLines.forEach((part,index)=>text(part,24,326+index*43.5,34.5,'sans',700,244));
+    const issueY=titleLines.length>1?409.5:367;
     text(`${d.issueType} ${d.issuePlace}`,24,issueY,21,'sans',700,244);
     const [,purchaseMonth,purchaseDay]=d.purchaseDate.split('-');
     text(`${Number(purchaseMonth)}月${Number(purchaseDay)}日`,24,issueY+34,21,'sans',700,244);
