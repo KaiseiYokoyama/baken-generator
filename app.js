@@ -24,8 +24,7 @@
       data[key] = data[key].trim();
       if(!data[key]) errors[key] = `${title}を入力してください。`;
     }
-    if(!/^\d{2}:\d{2}$/.test(data.issueTime || '') || !$('issueTime').validity.valid) errors.issueTime = '発券時刻を入力してください。';
-    for(const key of ['race','horse','meeting','day','amount','date','horseName','issuePlace','serial','issueTime']) {
+    for(const key of ['race','horse','meeting','day','amount','date','horseName','issuePlace','serial']) {
       $(key+'-error').textContent = errors[key] || '';
       $(key).setAttribute('aria-invalid',Boolean(errors[key]));
       $(key).setAttribute('aria-describedby',key+'-error');
@@ -160,16 +159,13 @@
   }
   function drawTicket(d){
     ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,800,490);drawBackground();
-    const [year,month,day]=d.date.split('-');
-    text(`${year}年${Number(month)}月${Number(day)}日`,24,48,23,'sans',500,250);
+    const year=d.date.split('-')[0];
+    text(`${year}年${d.meeting}回${d.day}日`,24,48,23,'sans',500,250);
     text(`${d.venue}`,24,91,33,'sans',700,230);
     blackBox(24,105,100,53);centeredText(d.race,74,131.5,58,'number',700,88,'#fff');text('レース',135,147,26,'sans',500,136);
     decorativeCode(25,179,2546789);decorativeCode(155,179,983715);
-    text(d.raceName||`第${d.meeting}回 第${d.day}日`,24,326,23,'sans',500,244);
-    if(d.raceName)text(`第${d.meeting}回 第${d.day}日`,24,354,18,'sans',500,244);
-    text(`${d.issuePlace}発行`,24,d.raceName?386:367,24,'sans',500,244);
-    text(`JRA ${d.issuePlace} ${d.issueTime}`,24,420,21,'sans',500,244);
-    text(`${year.slice(2)}.${month}.${day}`,24,452,18,'number',500,220);
+    if(d.raceName)text(d.raceName,24,326,23,'sans',500,244);
+    text(`${d.issueType} ${d.issuePlace}`,24,367,21,'sans',500,244);
     drawBand(d.type);
     const horseTop=d.type==='cheer'?138:164;
     if(d.type==='cheer'){
@@ -190,7 +186,6 @@
     numericText(number(count),507-7-numericWidth(number(count)),452,30);text('枚',507,451,20,'sans',500);
     money(total,774,452,32,242,4,'★');
     rightBottomText(d.serial,774,480);
-    text('X E N',24,480,13,'number',500,200);
   }
   form.addEventListener('submit',e=>e.preventDefault());
   form.addEventListener('input',e=>{if(e.target.id!=='background')validate();});
