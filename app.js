@@ -68,13 +68,13 @@
     ctx.fillText(value,m.actualBoundingBoxLeft,(m.actualBoundingBoxAscent-m.actualBoundingBoxDescent)/2);
     ctx.restore();
   }
-  function money(amount,right,y,size=45,maxWidth=285,starCount=3){
+  function money(amount,right,y,size=45,maxWidth=285,starCount=3,star='☆'){
     ctx.save();setFont(size,'money',700);const s=number(amount), yen=20, gap=7;
     const reserve=starCount===4?100:40;
     const width=Math.min(ctx.measureText(s).width,maxWidth-yen-reserve), left=right-yen-gap-width;
     text(s,left,y,size,'money',700,width);text('円',right-yen,y-1,20,'sans',500);
     const starLeft=Math.max(right-maxWidth,left-(starCount===4?98:85));
-    text('★'.repeat(starCount),starLeft,y-1,24,'number',500,Math.max(20,left-starLeft-6));ctx.restore();
+    text(star.repeat(starCount),starLeft,y-1,24,'number',500,Math.max(20,left-starLeft-6));ctx.restore();
   }
   // Fixed decoration: paint only dark modules so every light area stays transparent.
   function decorativeCode(x,y,seed){
@@ -150,9 +150,11 @@
       text('単勝',521,329,23,'sans',500,61);money(d.amount,774,331,36,188);
       text('複勝',521,374,23,'sans',500,61);money(d.amount,774,376,36,188);
     }else money(d.amount,774,281,58,314);
-    text(`合計`,411,424,22,'sans',500);text(d.type==='cheer'?'2':'1',470,426,34,'money',700);text('枚',490,424,22,'sans',500);
-    money(d.amount*(d.type==='cheer'?2:1),774,427,43,255,4);
-    text(d.serial,286,464,21,'number',500,489);
+    const total=d.amount*(d.type==='cheer'?2:1), count=total/10;
+    text('合計',291,452,20,'sans',500);text('★★★★',337,451,19,'number',500,70);
+    text(number(count),416,452,30,'money',700,85);text('枚',507,451,18,'sans',500);
+    money(total,774,452,32,242,4,'★');
+    text(d.serial,286,479,18,'number',500,489);
     text('X E N',24,480,13,'number',500,200);
   }
   form.addEventListener('submit',e=>e.preventDefault());
