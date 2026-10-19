@@ -83,17 +83,20 @@
     ctx.save();setFont(size,'money',700);ctx.fillStyle='#101512';ctx.textBaseline='alphabetic';
     // One shared advance for every digit, independent of its value or the number of digits.
     const scaleX=digitCell/ctx.measureText('0').width;
+    const first=ctx.measureText(String(value)[0]);
+    const inkLeft=x+digitCell/2-(first.width/2+first.actualBoundingBoxLeft)*scaleX;
     for(const ch of String(value)){
       const cell=ch===','?commaCell:digitCell;
       ctx.save();ctx.translate(x+cell/2,y);ctx.scale(scaleX,1);
       ctx.fillText(ch,-ctx.measureText(ch).width/2,0);ctx.restore();x+=cell;
     }
     ctx.restore();
+    return inkLeft;
   }
   function money(amount,right,y,size=45,maxWidth=285,starCount=3,star='☆',label=null){
     ctx.save();const s=number(amount), yen=20, gap=7;
     const left=right-yen-gap-numericWidth(s);
-    numericText(s,left,y,size);text('円',right-yen,y-1,20,'sans',500);
+    const numberInkLeft=numericText(s,left,y,size);text('円',right-yen,y-1,20,'sans',500);
     let starLeft=Math.max(right-maxWidth,left-(starCount===4?98:85));
     if(label){
       text(label,521,y-2,23,'sans',500,61);setFont(23,'sans',500);
@@ -101,14 +104,20 @@
       starLeft=labelRight+(starLeft-labelRight)/2;
     }
     const stars=star.repeat(starCount), starMaxWidth=Math.max(20,left-starLeft-6);
+    let starGap;
     if(star==='☆'){
       setFont(size,'money',700);const digits=ctx.measureText(String(amount));
       const centerY=y+(digits.actualBoundingBoxDescent-digits.actualBoundingBoxAscent)/2;
       setFont(24,'number',500);const m=ctx.measureText(stars);
       const width=Math.min(starMaxWidth,m.actualBoundingBoxLeft+m.actualBoundingBoxRight);
       centeredText(stars,starLeft+width/2,centerY,24,'number',500,width);
-    }else text(stars,starLeft,y-1,24,'number',500,starMaxWidth);
+    }else{
+      text(stars,starLeft,y-1,24,'number',500,starMaxWidth);
+      setFont(24,'number',500);const m=ctx.measureText(stars);
+      starGap=numberInkLeft-(starLeft+m.actualBoundingBoxRight*Math.min(1,starMaxWidth/m.width));
+    }
     ctx.restore();
+    return starGap;
   }
   // Fixed decoration: paint only dark modules so every light area stays transparent.
   function decorativeCode(x,y,seed){
@@ -197,9 +206,13 @@
       money(d.amount,774,420,36,188,3,'☆','複勝');
     }else money(d.amount,774,subtotalY,subtotalSize,314);
     const total=d.amount*(d.type==='cheer'?2:1), count=total/10;
-    text('合計',291,452,20,'sans',500);text('★★★★',337,451,19,'number',500,70);
-    numericText(number(count),507-7-numericWidth(number(count)),452,30);text('枚',507,451,20,'sans',500);
-    money(total,774,452,32,242,4,'★');
+    text('合計',291,452,20,'sans',500);
+    const starGap=money(total,774,452,32,242,4,'★');
+    const countInkLeft=numericText(number(count),507-7-numericWidth(number(count)),452,30);
+    setFont(19,'number',500);const countStars=ctx.measureText('★★★★');
+    const starWidth=Math.min(70,countInkLeft-starGap-337),starScale=Math.min(1,starWidth/countStars.width);
+    text('★★★★',countInkLeft-starGap-countStars.actualBoundingBoxRight*starScale,451,19,'number',500,starWidth);
+    text('枚',507,451,20,'sans',500);
     rightBottomText(d.serial,774,480);
   }
   form.addEventListener('submit',e=>e.preventDefault());
