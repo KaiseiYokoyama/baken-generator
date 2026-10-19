@@ -119,6 +119,40 @@
     ctx.restore();
     return starGap;
   }
+  function drawTotals(total){
+    const y=452, right=774, available=right-291;
+    function group(value,unit,size,starSize){
+      const s=number(value);
+      setFont(size,'money',700);const first=ctx.measureText(s[0]);
+      const inkOffset=digitCell/2-(first.width/2+first.actualBoundingBoxLeft)*digitCell/ctx.measureText('0').width;
+      setFont(starSize,'number',500);const stars=ctx.measureText('★★★★');
+      setFont(20,'sans',500);const unitRight=ctx.measureText(unit).actualBoundingBoxRight;
+      return {s,unit,size,starSize,stars,inkOffset,starWidth:stars.actualBoundingBoxLeft+stars.actualBoundingBoxRight,
+        fixedWidth:6-inkOffset+numericWidth(s)+7+unitRight};
+    }
+    ctx.save();
+    const count=group(total/10,'枚',30,19), amount=group(total,'円',32,24);
+    setFont(20,'sans',500);const label=ctx.measureText('合計');
+    const labelWidth=label.actualBoundingBoxLeft+label.actualBoundingBoxRight;
+    let groupGap=amount.starWidth/4;
+    const fixedWidth=labelWidth+count.fixedWidth+amount.fixedWidth;
+    const flexWidth=count.starWidth+amount.starWidth+2*groupGap;
+    const scale=Math.min(1,(available-fixedWidth)/flexWidth);
+    count.starWidth*=scale;amount.starWidth*=scale;groupGap*=scale;
+    const width=fixedWidth+count.starWidth+amount.starWidth+2*groupGap;
+    let x=right-width;
+    text('合計',x+label.actualBoundingBoxLeft,y,20,'sans',500);x+=labelWidth+groupGap;
+    for(const g of [count,amount]){
+      ctx.save();setFont(g.starSize,'number',500);ctx.fillStyle='#101512';ctx.textBaseline='alphabetic';
+      ctx.translate(x,y-1);ctx.scale(g.starWidth/(g.stars.actualBoundingBoxLeft+g.stars.actualBoundingBoxRight),1);
+      ctx.fillText('★★★★',g.stars.actualBoundingBoxLeft,0);ctx.restore();
+      const numberX=x+g.starWidth+6-g.inkOffset;
+      numericText(g.s,numberX,y,g.size);
+      text(g.unit,numberX+numericWidth(g.s)+7,y-1,20,'sans',500);
+      x+=g.starWidth+g.fixedWidth+groupGap;
+    }
+    ctx.restore();
+  }
   // Fixed decoration: paint only dark modules so every light area stays transparent.
   function decorativeCode(x,y,seed){
     const n=25,unit=4.1;let state=seed;
@@ -185,11 +219,13 @@
       plainTitle.slice(0,breakAt+1)+(grade?' '+grade:''),
       plainTitle.slice(breakAt+1).trim()
     ].filter(Boolean):title?[title]:[];
-    titleLines.forEach((part,index)=>text(part,24,326+index*43.5,34.5,'sans',700,244));
-    const issueY=titleLines.length>1?409.5:367;
-    text(`${d.issueType} ${d.issuePlace}`,24,issueY,21,'sans',700,244);
     const [,purchaseMonth,purchaseDay]=d.purchaseDate.split('-');
-    text(`${Number(purchaseMonth)}月${Number(purchaseDay)}日`,24,issueY+34,21,'sans',700,244);
+    const purchaseText=`${Number(purchaseMonth)}月${Number(purchaseDay)}日`;
+    setFont(21,'sans',700);const purchaseY=480-ctx.measureText(purchaseText).actualBoundingBoxDescent;
+    const issueY=purchaseY-34, titleY=issueY-40-Math.max(0,titleLines.length-1)*43.5;
+    titleLines.forEach((part,index)=>text(part,24,titleY+index*43.5,34.5,'sans',700,244));
+    text(`${d.issueType} ${d.issuePlace}`,24,issueY,21,'sans',700,244);
+    text(purchaseText,24,purchaseY,21,'sans',700,244);
     drawBand(d.type);
     const horseTop=d.type==='cheer'?138:164;
     if(d.type==='cheer'){
@@ -205,14 +241,7 @@
       money(d.amount,774,386,36,188,3,'☆','単勝');
       money(d.amount,774,420,36,188,3,'☆','複勝');
     }else money(d.amount,774,subtotalY,subtotalSize,314);
-    const total=d.amount*(d.type==='cheer'?2:1), count=total/10;
-    text('合計',291,452,20,'sans',500);
-    const starGap=money(total,774,452,32,242,4,'★');
-    const countInkLeft=numericText(number(count),507-7-numericWidth(number(count)),452,30);
-    setFont(19,'number',500);const countStars=ctx.measureText('★★★★');
-    const starWidth=Math.min(70,countInkLeft-starGap-337),starScale=Math.min(1,starWidth/countStars.width);
-    text('★★★★',countInkLeft-starGap-countStars.actualBoundingBoxRight*starScale,451,19,'number',500,starWidth);
-    text('枚',507,451,20,'sans',500);
+    drawTotals(d.amount*(d.type==='cheer'?2:1));
     rightBottomText(d.serial,774,480);
   }
   form.addEventListener('submit',e=>e.preventDefault());
