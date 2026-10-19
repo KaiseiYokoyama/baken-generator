@@ -68,12 +68,29 @@
     ctx.fillText(value,m.actualBoundingBoxLeft,(m.actualBoundingBoxAscent-m.actualBoundingBoxDescent)/2);
     ctx.restore();
   }
-  function money(amount,right,y,size=45,maxWidth=285,starCount=3,star='☆'){
-    ctx.save();setFont(size,'money',700);const s=number(amount), yen=20, gap=7;
-    const reserve=starCount===4?100:40;
-    const width=Math.min(ctx.measureText(s).width,maxWidth-yen-reserve), left=right-yen-gap-width;
-    text(s,left,y,size,'money',700,width);text('円',right-yen,y-1,20,'sans',500);
-    const starLeft=Math.max(right-maxWidth,left-(starCount===4?98:85));
+  const digitCell=14, commaCell=7;
+  function numericWidth(value){return [...String(value)].reduce((width,ch)=>width+(ch===','?commaCell:digitCell),0);}
+  function numericText(value,x,y,size){
+    ctx.save();setFont(size,'money',700);ctx.fillStyle='#101512';ctx.textBaseline='alphabetic';
+    // One shared advance for every digit, independent of its value or the number of digits.
+    const scaleX=digitCell/ctx.measureText('0').width;
+    for(const ch of String(value)){
+      const cell=ch===','?commaCell:digitCell;
+      ctx.save();ctx.translate(x+cell/2,y);ctx.scale(scaleX,1);
+      ctx.fillText(ch,-ctx.measureText(ch).width/2,0);ctx.restore();x+=cell;
+    }
+    ctx.restore();
+  }
+  function money(amount,right,y,size=45,maxWidth=285,starCount=3,star='☆',label=null){
+    ctx.save();const s=number(amount), yen=20, gap=7;
+    const left=right-yen-gap-numericWidth(s);
+    numericText(s,left,y,size);text('円',right-yen,y-1,20,'sans',500);
+    let starLeft=Math.max(right-maxWidth,left-(starCount===4?98:85));
+    if(label){
+      text(label,521,y-2,23,'sans',500,61);setFont(23,'sans',500);
+      const labelRight=521+ctx.measureText(label).actualBoundingBoxRight;
+      starLeft=labelRight+(starLeft-labelRight)/2;
+    }
     text(star.repeat(starCount),starLeft,y-1,24,'number',500,Math.max(20,left-starLeft-6));ctx.restore();
   }
   // Fixed decoration: paint only dark modules so every light area stays transparent.
@@ -124,7 +141,7 @@
       centeredText('単',x+w/2,181,64,'serif',900,78);centeredText('勝',x+w/2,277,64,'serif',900,78);
       centeredText('WIN',x+w/2,399,27,'number',500,w-12);
     }
-    line(x,top,x,bottom,1.4);line(x+w,top,x+w,bottom,1.4);
+    rect(x,top,w,bottom-top,1.4);
   }
   function drawTicket(d){
     ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,800,490);drawBackground();
@@ -147,12 +164,12 @@
     horseName(d.horseName,467,horseTop-.85,48.7,305);
     if(d.type==='cheer'){
       money(d.amount,774,274,51,282);
-      text('単勝',521,329,23,'sans',500,61);money(d.amount,774,331,36,188);
-      text('複勝',521,374,23,'sans',500,61);money(d.amount,774,376,36,188);
+      money(d.amount,774,331,36,188,3,'☆','単勝');
+      money(d.amount,774,376,36,188,3,'☆','複勝');
     }else money(d.amount,774,281,58,314);
     const total=d.amount*(d.type==='cheer'?2:1), count=total/10;
     text('合計',291,452,20,'sans',500);text('★★★★',337,451,19,'number',500,70);
-    text(number(count),416,452,30,'money',700,85);text('枚',507,451,18,'sans',500);
+    numericText(number(count),410,452,30);text('枚',507,451,18,'sans',500);
     money(total,774,452,32,242,4,'★');
     text(d.serial,286,479,18,'number',500,489);
     text('X E N',24,480,13,'number',500,200);
