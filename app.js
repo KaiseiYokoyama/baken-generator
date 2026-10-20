@@ -249,6 +249,43 @@
   }
   form.addEventListener('submit',e=>e.preventDefault());
   form.addEventListener('input',e=>{if(e.target.id!=='background')validate();});
+  const mobileLayout=matchMedia('(max-width:1119px)'), sheet=$('editor-sheet');
+  function syncMobileViewport(){
+    const viewport=window.visualViewport;
+    if(!mobileLayout.matches){
+      document.body.style.removeProperty('--app-height');document.body.style.removeProperty('--app-top');return;
+    }
+    if(viewport && viewport.scale!==1)return;
+    document.body.style.setProperty('--app-height',`${viewport?.height || innerHeight}px`);
+    document.body.style.setProperty('--app-top',`${viewport?.offsetTop || 0}px`);
+  }
+  function setTicketFocused(focused){
+    focused=mobileLayout.matches && focused;
+    if(focused && sheet.contains(document.activeElement))document.activeElement.blur();
+    document.body.classList.toggle('ticket-focused',focused);
+    sheet.inert=focused;
+    if(focused)sheet.setAttribute('aria-hidden','true');else sheet.removeAttribute('aria-hidden');
+    if(mobileLayout.matches){
+      canvas.setAttribute('role','button');canvas.tabIndex=0;
+      canvas.setAttribute('aria-controls','editor-sheet');canvas.setAttribute('aria-expanded',String(!focused));
+      canvas.setAttribute('aria-label',focused?'馬券。タップして編集に戻る':'馬券。タップして全体を表示');
+    }else{
+      canvas.removeAttribute('role');canvas.removeAttribute('tabindex');canvas.removeAttribute('aria-controls');canvas.removeAttribute('aria-expanded');
+      canvas.setAttribute('aria-label','作成中の馬券');
+    }
+    syncMobileViewport();
+  }
+  canvas.addEventListener('click',()=>{if(mobileLayout.matches)setTicketFocused(!document.body.classList.contains('ticket-focused'));});
+  canvas.addEventListener('keydown',e=>{
+    if(mobileLayout.matches && (e.key==='Enter' || e.key===' ')){e.preventDefault();setTicketFocused(!document.body.classList.contains('ticket-focused'));}
+  });
+  $('sheet-hide').addEventListener('click',()=>setTicketFocused(true));
+  $('sheet-preview-toggle').addEventListener('click',()=>setTicketFocused(true));
+  mobileLayout.addEventListener('change',()=>setTicketFocused(false));
+  window.addEventListener('resize',syncMobileViewport);
+  window.visualViewport?.addEventListener('resize',syncMobileViewport);
+  window.visualViewport?.addEventListener('scroll',syncMobileViewport);
+  setTicketFocused(false);
   $('download-mobile').addEventListener('click',()=>$('download').click());
   $('download').addEventListener('click',()=>{
     validate();if(!ready||!valid||imageLoading||imageProblem)return;
