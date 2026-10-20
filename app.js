@@ -93,7 +93,7 @@
     ctx.restore();
     return inkLeft;
   }
-  function money(amount,right,y,size=45,maxWidth=285,starCount=3,star='☆',label=null){
+  function money(amount,right,y,size=45,maxWidth=285,starCount=3,star='☆',label=null,each=false){
     ctx.save();const s=number(amount), yen=20, gap=7;
     const left=right-yen-gap-numericWidth(s);
     const numberInkLeft=numericText(s,left,y,size);text('円',right-yen,y-1,20,'sans',500);
@@ -110,7 +110,9 @@
       const centerY=y+(digits.actualBoundingBoxDescent-digits.actualBoundingBoxAscent)/2;
       setFont(24,'number',500);const m=ctx.measureText(stars);
       const width=Math.min(starMaxWidth,m.actualBoundingBoxLeft+m.actualBoundingBoxRight);
-      centeredText(stars,starLeft+width/2,centerY,24,'number',500,width);
+      const centerX=label?starLeft+width/2:numberInkLeft-width/2;
+      centeredText(stars,centerX,centerY,24,'number',500,width);
+      if(each)centeredText('各',centerX-width/2-14,centerY,24,'sans',500,24);
     }else{
       text(stars,starLeft,y-1,24,'number',500,starMaxWidth);
       setFont(24,'number',500);const m=ctx.measureText(stars);
@@ -237,7 +239,7 @@
     setFont(subtotalSize,'money',700);
     const subtotalY=horseTop+47.85+4+ctx.measureText(String(d.amount)).actualBoundingBoxAscent;
     if(d.type==='cheer'){
-      money(d.amount,774,subtotalY,subtotalSize,282);
+      money(d.amount,774,subtotalY,subtotalSize,282,3,'☆',null,true);
       money(d.amount,774,386,36,188,3,'☆','単勝');
       money(d.amount,774,420,36,188,3,'☆','複勝');
     }else money(d.amount,774,subtotalY,subtotalSize,314);
