@@ -2,7 +2,7 @@
 @font-face{font-family:Roboto Condensed;src:url('./fonts/RobotoCondensed.woff2') format('woff2');font-weight:100 900}
 @font-face{font-family:Dela Gothic One;src:url('./fonts/DelaGothicOne.woff2');font-weight:400}
 @font-face{font-family:Noto Sans JP;src:url('./fonts/NotoSansJP.woff2') format('woff2');font-weight:100 900}
-@font-face{font-family:Noto Serif JP;src:url('./fonts/NotoSerifJP.woff2') format('woff2');font-weight:900}
+@font-face{font-family:Noto Serif JP;src:url('./fonts/NotoSerifJP.woff') format('woff');font-weight:200 900}
 
 :root{font-family:'Noto Sans JP',sans-serif;color:#223b31;background:#f6f8f6;font-synthesis:none;--green:#176948;--border:#dfe6e1}
 *{box-sizing:border-box}
