@@ -96,10 +96,10 @@
   function money(amount,right,y,size=45,maxWidth=285,starCount=3,star='☆',label=null,each=false){
     ctx.save();const s=number(amount), yen=20, gap=7;
     const left=right-yen-gap-numericWidth(s);
-    const numberInkLeft=numericText(s,left,y,size);text('円',right-yen,y-1,20,'serif',500);
+    const numberInkLeft=numericText(s,left,y,size);text('円',right-yen,y-1,20,'serif',700);
     let starLeft=Math.max(right-maxWidth,left-(starCount===4?98:85));
     if(label){
-      text(label,521,y-2,23,'serif',500,61);setFont(23,'serif',500);
+      text(label,521,y-2,23,'serif',700,61);setFont(23,'serif',700);
       const labelRight=521+ctx.measureText(label).actualBoundingBoxRight;
       starLeft=labelRight+(starLeft-labelRight)/2;
     }
@@ -112,7 +112,7 @@
       const width=Math.min(starMaxWidth,m.actualBoundingBoxLeft+m.actualBoundingBoxRight);
       const centerX=label?starLeft+width/2:numberInkLeft-width/2;
       centeredText(stars,centerX,centerY,24,'number',500,width);
-      if(each)text('各',centerX-width/2-26,y,24,'serif',500,24);
+      if(each)text('各',centerX-width/2-26,y,24,'serif',700,24);
     }else{
       text(stars,starLeft,y-1,24,'number',500,starMaxWidth);
       setFont(24,'number',500);const m=ctx.measureText(stars);
@@ -128,13 +128,13 @@
       setFont(size,'money',700);const first=ctx.measureText(s[0]);
       const inkOffset=digitCell/2-(first.width/2+first.actualBoundingBoxLeft)*digitCell/ctx.measureText('0').width;
       setFont(starSize,'number',500);const stars=ctx.measureText('★★★★');
-      setFont(20,'serif',500);const unitRight=ctx.measureText(unit).actualBoundingBoxRight;
+      setFont(20,'serif',700);const unitRight=ctx.measureText(unit).actualBoundingBoxRight;
       return {s,unit,size,starSize,stars,inkOffset,starWidth:stars.actualBoundingBoxLeft+stars.actualBoundingBoxRight,
         fixedWidth:6-inkOffset+numericWidth(s)+7+unitRight};
     }
     ctx.save();
     const count=group(total/10,'枚',30,24), amount=group(total,'円',32,24);
-    setFont(20,'serif',500);const label=ctx.measureText('合計');
+    setFont(20,'serif',700);const label=ctx.measureText('合計');
     const labelWidth=label.actualBoundingBoxLeft+label.actualBoundingBoxRight;
     let groupGap=amount.starWidth/4;
     const fixedWidth=labelWidth+count.fixedWidth+amount.fixedWidth;
@@ -143,14 +143,14 @@
     count.starWidth*=scale;amount.starWidth*=scale;groupGap*=scale;
     const width=fixedWidth+count.starWidth+amount.starWidth+2*groupGap;
     let x=right-width;
-    text('合計',x+label.actualBoundingBoxLeft,y,20,'serif',500);x+=labelWidth+groupGap;
+    text('合計',x+label.actualBoundingBoxLeft,y,20,'serif',700);x+=labelWidth+groupGap;
     for(const g of [count,amount]){
       ctx.save();setFont(g.starSize,'number',500);ctx.fillStyle='#101512';ctx.textBaseline='alphabetic';
       ctx.translate(x,y-1);ctx.scale(g.starWidth/(g.stars.actualBoundingBoxLeft+g.stars.actualBoundingBoxRight),1);
       ctx.fillText('★★★★',g.stars.actualBoundingBoxLeft,0);ctx.restore();
       const numberX=x+g.starWidth+6-g.inkOffset;
       numericText(g.s,numberX,y,g.size);
-      text(g.unit,numberX+numericWidth(g.s)+7,y-1,20,'serif',500);
+      text(g.unit,numberX+numericWidth(g.s)+7,y-1,20,'serif',700);
       x+=g.starWidth+g.fixedWidth+groupGap;
     }
     ctx.restore();
@@ -269,5 +269,5 @@
     finally{URL.revokeObjectURL(url);if(request===imageRequest){imageLoading=false;validate();}}
   });
   validate();
-  Promise.all([document.fonts.load('700 32px "Jost"'),document.fonts.load('700 32px "Roboto Condensed"'),document.fonts.load('400 32px "Dela Gothic One"'),document.fonts.load('700 32px "Noto Sans JP"'),document.fonts.load('500 24px "Noto Serif JP"'),document.fonts.load('900 32px "Noto Serif JP"')]).then(()=>{ready=true;validate();}).catch(()=>{$('preview-status').textContent='フォントを読み込めませんでした。再読み込みしてください。';});
+  Promise.all([document.fonts.load('700 32px "Jost"'),document.fonts.load('700 32px "Roboto Condensed"'),document.fonts.load('400 32px "Dela Gothic One"'),document.fonts.load('700 32px "Noto Sans JP"'),document.fonts.load('700 24px "Noto Serif JP"'),document.fonts.load('900 32px "Noto Serif JP"')]).then(()=>{ready=true;validate();}).catch(()=>{$('preview-status').textContent='フォントを読み込めませんでした。再読み込みしてください。';});
 })();
