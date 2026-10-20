@@ -336,7 +336,41 @@
     canvas.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`baken-${lastValid.date}-${lastValid.venue}${lastValid.race}R-${lastValid.type}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},'image/png');
   });
   function resetImage(){for(const [k,v]of Object.entries(imageDefaults)){$('image-'+k).value=v;$('image-'+k+'-value').textContent=v+'%';}if(ready&&lastValid)drawTicket(lastValid);}
-  for(const k of Object.keys(imageDefaults))$('image-'+k).addEventListener('input',()=>{$('image-'+k+'-value').textContent=$('image-'+k).value+'%';});
+  for(const k of Object.keys(imageDefaults)){
+    const input=$('image-'+k), surface=input.parentElement.querySelector('.range-touch');
+    input.addEventListener('input',()=>{$('image-'+k+'-value').textContent=input.value+'%';});
+    // The mobile overlay prevents native range tap-to-seek while pan-y lets
+    // vertical gestures scroll the sheet. Only a deliberate horizontal drag edits.
+    let gesture=null;
+    surface.addEventListener('pointerdown',e=>{
+      if(!e.isPrimary || e.button!==0)return;
+      gesture={id:e.pointerId,x:e.clientX,y:e.clientY,value:Number(input.value),axis:null,changed:false};
+      surface.setPointerCapture(e.pointerId);
+    });
+    surface.addEventListener('pointermove',e=>{
+      if(!gesture || gesture.id!==e.pointerId)return;
+      const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;
+      if(!gesture.axis){
+        if(Math.max(Math.abs(dx),Math.abs(dy))<8)return;
+        gesture.axis=Math.abs(dx)>Math.abs(dy)?'x':'y';
+      }
+      if(gesture.axis!=='x')return;
+      const min=Number(input.min),max=Number(input.max),step=Number(input.step)||1;
+      const trackWidth=Math.max(1,input.getBoundingClientRect().width-16);
+      const next=Math.max(min,Math.min(max,min+Math.round((gesture.value+dx/trackWidth*(max-min)-min)/step)*step));
+      if(next!==Number(input.value)){
+        input.value=next;gesture.changed=true;input.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+    });
+    const finish=e=>{
+      if(!gesture || gesture.id!==e.pointerId)return;
+      const changed=gesture.changed;gesture=null;
+      if(changed)input.dispatchEvent(new Event('change',{bubbles:true}));
+    };
+    surface.addEventListener('pointerup',finish);
+    surface.addEventListener('pointercancel',finish);
+    surface.addEventListener('lostpointercapture',finish);
+  }
   $('reset-image').addEventListener('click',resetImage);
   $('remove-image').addEventListener('click',()=>{imageRequest++;imageLoading=false;imageProblem=false;background=null;$('background').value='';$('background-error').textContent='';$('file-label').textContent='画像を選択';$('image-controls').hidden=true;resetImage();validate();});
   $('cancel-background').addEventListener('click',()=>$('remove-image').click());

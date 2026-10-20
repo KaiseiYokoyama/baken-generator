@@ -70,7 +70,10 @@ legend,.field>label{font-size:11px;font-weight:500;margin-bottom:8px;display:blo
 .upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .slider{display:grid;grid-template-columns:1fr auto;margin-top:20px;font-size:11px}
 .slider output{color:#829187;font:12px Jost}
-.slider input{grid-column:1/-1;width:100%;accent-color:var(--green);margin-top:10px}
+.range-control{grid-column:1/-1;position:relative}
+.range-touch{display:none}
+@media(max-width:1119px){.range-touch{display:block;position:absolute;inset:0;touch-action:pan-y}}
+.slider input{width:100%;accent-color:var(--green);margin-top:10px}
 .image-actions{display:flex;justify-content:space-between;margin-top:20px}
 .image-actions button{font-size:10px;background:#fff;border:1px solid var(--border);border-radius:5px;padding:8px 10px;color:#65796b}
 #remove-image{color:#ab5d51}
