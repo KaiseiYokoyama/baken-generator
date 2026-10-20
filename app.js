@@ -34,6 +34,7 @@
     }
     valid = !Object.keys(errors).length;
     $('download').disabled = !valid || !ready || imageLoading || imageProblem;
+    $('download-mobile').disabled = $('download').disabled;
     $('cancel-background').hidden = !imageProblem;
     $('amount-label').textContent = data.type==='cheer'?'単勝・複勝 それぞれ同額':'100円単位';
     $('amount-note').textContent = data.type==='cheer'?'合計金額（単勝 ＋ 複勝）':'合計金額';
@@ -248,6 +249,7 @@
   }
   form.addEventListener('submit',e=>e.preventDefault());
   form.addEventListener('input',e=>{if(e.target.id!=='background')validate();});
+  $('download-mobile').addEventListener('click',()=>$('download').click());
   $('download').addEventListener('click',()=>{
     validate();if(!ready||!valid||imageLoading||imageProblem)return;
     canvas.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`baken-${lastValid.date}-${lastValid.venue}${lastValid.race}R-${lastValid.type}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},'image/png');
