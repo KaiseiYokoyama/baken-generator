@@ -112,7 +112,7 @@
       const width=Math.min(starMaxWidth,m.actualBoundingBoxLeft+m.actualBoundingBoxRight);
       const centerX=label?starLeft+width/2:numberInkLeft-width/2;
       centeredText(stars,centerX,centerY,24,'number',500,width);
-      if(each)centeredText('各',centerX-width/2-14,centerY,24,'sans',500,24);
+      if(each)text('各',centerX-width/2-26,y,24,'sans',500,24);
     }else{
       text(stars,starLeft,y-1,24,'number',500,starMaxWidth);
       setFont(24,'number',500);const m=ctx.measureText(stars);
@@ -193,14 +193,14 @@
       for(let i=0;i<30;i++)if(i%2===0){blackBox(x+i*w/30,90,w/30,268);}
       blackBox(x,top,w,56);blackBox(x,358,w,66);
       for(const y of [48,373]){centeredText('PLACE',x+w/2,y+6,16,'number',600,w-8,'#fff');centeredText('SHOW',x+w/2,y+26,16,'number',600,w-8,'#fff');}
-      centeredText('複',x+w/2,182,60,'serif',900,72,'#111',true);centeredText('勝',x+w/2,274,60,'serif',900,72,'#111',true);
+      centeredText('複',x+w/2,182,60,'sans',900,72,'#111',true);centeredText('勝',x+w/2,274,60,'sans',900,72,'#111',true);
     }else if(type==='cheer'){
       centeredText('WIN',x+w/2,57,27,'number',500,w-12);
-      for(const [s,y] of [['単',112],['勝',169],['＋',223],['複',277],['勝',334]])centeredText(s,x+w/2,y,s==='＋'?35:48,'serif',900,75);
+      for(const [s,y] of [['単',112],['勝',169],['＋',223],['複',277],['勝',334]])centeredText(s,x+w/2,y,s==='＋'?35:48,'sans',900,75);
       blackBox(x,358,w,66);centeredText('PLACE',x+w/2,379,16,'number',600,w-8,'#fff');centeredText('SHOW',x+w/2,405,16,'number',600,w-8,'#fff');
     }else{
       centeredText('WIN',x+w/2,57,27,'number',500,w-12);
-      centeredText('単',x+w/2,181,64,'serif',900,78);centeredText('勝',x+w/2,277,64,'serif',900,78);
+      centeredText('単',x+w/2,181,64,'sans',900,78);centeredText('勝',x+w/2,277,64,'sans',900,78);
       centeredText('WIN',x+w/2,399,27,'number',500,w-12);
     }
     rect(x,top,w,bottom-top,1.4);
